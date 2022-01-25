@@ -1,0 +1,46 @@
+issues:
+  # List all of them
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+run:
+  skip-dirs:
+    - pkg/model
+linters:
+  enable:
+    - bodyclose
+    - noctx
+    - rowserrcheck
+    - stylecheck
+    - gosec
+    - unconvert
+    - dupl
+    - goconst
+    - gocyclo
+    - gocognit
+    - asciicheck
+    - gofmt
+    - goimports
+    - goheader
+    - gci
+    - depguard
+    - misspell
+    - lll
+    - unparam
+    - dogsled
+    - nakedret
+    - prealloc
+    - gocritic
+    - godox
+    - funlen
+    - whitespace
+    - goprintffuncname
+    - gomnd
+    - goerr113
+    - gomodguard
+    - godot
+    - nestif
+    - exportloopref
+    - exhaustive
+    - sqlclosecheck
+    - nolintlint
