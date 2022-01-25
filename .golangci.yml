@@ -35,7 +35,6 @@ linters:
     - funlen
     - whitespace
     - goprintffuncname
-    - gomnd
     - goerr113
     - gomodguard
     - godot
