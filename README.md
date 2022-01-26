@@ -79,3 +79,7 @@ Hints:
 - Tests are run with `go test` in the current directory.
 - Try to keep to the standard library as much as possible
 - Latency is crucial for this application, so fetching the items sequentially one at a time might not be good enough
+
+# Assumptions:
+1. After fallback fails there is no reattempt on the fallback of the fallback.
+2. Offset affects only the configuration and do not have influence on the content returned from provider.
