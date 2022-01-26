@@ -11,13 +11,13 @@ import (
 func TestRequestParamsParsing(t *testing.T) {
 	cases := []struct {
 		reqTarget string
-		count     int64
-		offset    int64
+		count     int
+		offset    int
 	}{
 		{
-			reqTarget: "/?offset=0&count=0",
+			reqTarget: "/?offset=0&count=1",
 			offset:    0,
-			count:     0,
+			count:     1,
 		},
 		{
 			reqTarget: "/?offset=21&count=73",
@@ -58,7 +58,7 @@ func TestFailingRequestParamsParsing(t *testing.T) {
 			err:       errMultipleValues,
 		},
 		{
-			reqTarget: "/?offset=-21&count=0",
+			reqTarget: "/?offset=-21&count=1",
 			err:       errNegativeValue,
 		},
 		{

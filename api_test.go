@@ -37,7 +37,7 @@ func TestResponseOrder(t *testing.T) {
 	require.Len(t, content, 5)
 
 	for i, item := range content {
-		require.Equal(t, DefaultConfig[i%len(DefaultConfig)].Type, item.Source)
+		require.EqualValues(t, DefaultConfig[i%len(DefaultConfig)].Type, item.Source)
 	}
 }
 
@@ -47,6 +47,6 @@ func TestOffsetResponseOrder(t *testing.T) {
 
 	for j, item := range content {
 		i := j + 5
-		require.Equal(t, DefaultConfig[i%len(DefaultConfig)].Type, item.Source)
+		require.EqualValues(t, DefaultConfig[i%len(DefaultConfig)].Type, item.Source)
 	}
 }
