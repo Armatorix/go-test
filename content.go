@@ -26,9 +26,7 @@ type ContentItem struct {
 type Provider string
 
 var (
-
 	// Sample Providers, put here as an example.
-
 	Provider1 = Provider("1")
 	Provider2 = Provider("2")
 	Provider3 = Provider("3")

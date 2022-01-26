@@ -41,7 +41,7 @@ func nonNegativeQueryParam(vals url.Values, paramName string) (int64, error) {
 	return param, nil
 }
 
-func requestParams(req *http.Request) (count int64, offset int64, err error) {
+func requestParams(req *http.Request) (count, offset int64, err error) {
 	queryVals := req.URL.Query()
 	count, err = nonNegativeQueryParam(queryVals, "count")
 	if err != nil {
