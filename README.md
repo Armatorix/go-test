@@ -83,3 +83,4 @@ Hints:
 # Assumptions:
 1. After fallback fails there is no reattempt on the fallback of the fallback.
 2. Offset affects only the configuration and do not have influence on the content returned from provider.
+3. Content provider can return less content items than requested - fallback should be used in case of missing content.

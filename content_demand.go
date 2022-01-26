@@ -1,11 +1,12 @@
 package main
 
-type ContentDemand struct {
+type DemandManager struct {
 	demandLookup []map[Provider]int
 }
 
-// NewContentDemand calculates
-func NewContentDemand(config ContentMix) ContentDemand {
+// NewDemandManager provides lookup map for fast calculation of
+// content demand per provider in worst case scenario.
+func NewDemandManager(config ContentMix) DemandManager {
 	demands := make([]map[Provider]int, len(config))
 	currentDemand := make(map[Provider]int)
 	for i, contentConfig := range config {
@@ -19,12 +20,13 @@ func NewContentDemand(config ContentMix) ContentDemand {
 			demands[i][k] = v
 		}
 	}
-	return ContentDemand{
+	return DemandManager{
 		demandLookup: demands,
 	}
 }
 
-func (cd *ContentDemand) ProvidersCounts(count, offset int) map[Provider]int {
+// ProvidersCounts estimates count of content needed per provider with specified count and offset.
+func (cd *DemandManager) ProvidersCounts(count, offset int) map[Provider]int {
 	lookupLen := len(cd.demandLookup)
 	offset %= lookupLen
 	counts := make(map[Provider]int)

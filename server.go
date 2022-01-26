@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 )
 
-// App represents the server's internal state.
-// It holds configuration about providers and content.
+const xForwardedFor = "x-forwarded-for"
 
 var (
 	errQueryParamMissing = fmt.Errorf("query parameter missing")
@@ -20,17 +20,19 @@ var (
 	errZeroValue         = fmt.Errorf("zero value")
 )
 
+// App represents the server's internal state.
+// It holds configuration about providers and content.
 type App struct {
 	ContentClients map[Provider]Client
 	Config         ContentMix
-	ContentDemand  ContentDemand
+	DemandManager  DemandManager
 }
 
 func NewApp(contentClients map[Provider]Client, config ContentMix) App {
 	return App{
 		ContentClients: contentClients,
 		Config:         config,
-		ContentDemand:  NewContentDemand(config),
+		DemandManager:  NewDemandManager(config),
 	}
 }
 
@@ -71,7 +73,7 @@ func requestParams(req *http.Request) (count, offset int, err error) {
 func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
 	var wg sync.WaitGroup
 	var rwm sync.Mutex
-	providerDemands := a.ContentDemand.ProvidersCounts(count, offset)
+	providerDemands := a.DemandManager.ProvidersCounts(count, offset)
 	providersContent := make(map[Provider][]*ContentItem)
 	wg.Add(len(providerDemands))
 	for provider, demand := range providerDemands {
@@ -105,6 +107,10 @@ func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
 	return content
 }
 
+func userIP(req *http.Request) string {
+	return strings.Split(req.Header.Get(xForwardedFor), ",")[0]
+}
+
 func (a App) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	log.Printf("%s %s", req.Method, req.URL.String())
 	count, offset, err := requestParams(req)
@@ -113,8 +119,7 @@ func (a App) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// TODO: fetch IP
-	items := a.GetContent(count, offset, "testip")
+	items := a.GetContent(count, offset, userIP(req))
 	if err := json.NewEncoder(w).Encode(items); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
