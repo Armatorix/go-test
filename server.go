@@ -28,7 +28,7 @@ type App struct {
 	DemandManager  DemandManager
 }
 
-// NewApp returns new instance of App with calulated DemandManager
+// NewApp returns new instance of App with calculated DemandManager.
 func NewApp(contentClients map[Provider]Client, config ContentMix) App {
 	return App{
 		ContentClients: contentClients,
@@ -37,7 +37,7 @@ func NewApp(contentClients map[Provider]Client, config ContentMix) App {
 	}
 }
 
-// nonNegativeQueryParam parses and validates paramName from url values
+// nonNegativeQueryParam parses and validates paramName from url values.
 func nonNegativeQueryParam(urlVals url.Values, paramName string) (int, error) {
 	paramVals, ok := urlVals[paramName]
 	if !ok {
@@ -72,7 +72,7 @@ func requestParams(req *http.Request) (count, offset int, err error) {
 	return
 }
 
-// getProvidersContent provides content per provider based on calculated demand
+// getProvidersContent provides content per provider based on calculated demand.
 func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider][]*ContentItem {
 	var wg sync.WaitGroup
 	var m sync.Mutex
