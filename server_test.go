@@ -78,3 +78,22 @@ func TestFailingRequestParamsParsing(t *testing.T) {
 		})
 	}
 }
+
+func TestUserIPFetch(t *testing.T) {
+	cases := []struct {
+		xffHeader string
+		ip        string
+	}{
+		{"", ""},
+		{"21.73.21.73", "21.73.21.73"},
+		{"21.73.21.73,15.16.17.18", "21.73.21.73"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.xffHeader, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/", nil)
+			req.Header.Add(xForwardedFor, c.xffHeader)
+			require.Equal(t, c.ip, userIP(req))
+		})
+	}
+}

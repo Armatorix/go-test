@@ -75,7 +75,7 @@ func requestParams(req *http.Request) (count, offset int, err error) {
 // getProvidersContent provides content per provider based on calculated demand
 func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider][]*ContentItem {
 	var wg sync.WaitGroup
-	var rwm sync.Mutex
+	var m sync.Mutex
 	providerDemands := a.DemandManager.ProvidersCounts(count, offset)
 	providersContent := make(map[Provider][]*ContentItem)
 	wg.Add(len(providerDemands))
@@ -85,9 +85,9 @@ func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider
 			if err != nil {
 				log.Printf("content load failed, provider: %s, err: %v", provider, err)
 			} else {
-				rwm.Lock()
+				m.Lock()
 				providersContent[provider] = content
-				rwm.Unlock()
+				m.Unlock()
 			}
 			wg.Done()
 		}(provider, demand)
@@ -117,6 +117,7 @@ func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
 }
 
 // userIP returns user IP based on xff header.
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
 func userIP(req *http.Request) string {
 	return strings.Split(req.Header.Get(xForwardedFor), ",")[0]
 }

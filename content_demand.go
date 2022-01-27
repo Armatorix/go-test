@@ -34,7 +34,7 @@ func (cd *DemandManager) ProvidersCounts(count, offset int) map[Provider]int {
 	counts := make(map[Provider]int)
 	i := (offset+count)%lookupLen - 1
 	if i >= 0 {
-		for k, v := range cd.demandLookup[(offset+count)%lookupLen] {
+		for k, v := range cd.demandLookup[i] {
 			counts[k] += v
 		}
 	}
