@@ -28,6 +28,7 @@ type App struct {
 	DemandManager  DemandManager
 }
 
+// NewApp returns new instance of App with calulated DemandManager
 func NewApp(contentClients map[Provider]Client, config ContentMix) App {
 	return App{
 		ContentClients: contentClients,
@@ -36,8 +37,9 @@ func NewApp(contentClients map[Provider]Client, config ContentMix) App {
 	}
 }
 
-func nonNegativeQueryParam(vals url.Values, paramName string) (int, error) {
-	paramVals, ok := vals[paramName]
+// nonNegativeQueryParam parses and validates paramName from url values
+func nonNegativeQueryParam(urlVals url.Values, paramName string) (int, error) {
+	paramVals, ok := urlVals[paramName]
 	if !ok {
 		return 0, fmt.Errorf("param: %s, %w", paramName, errQueryParamMissing)
 	}
@@ -55,6 +57,7 @@ func nonNegativeQueryParam(vals url.Values, paramName string) (int, error) {
 	return int(param), nil
 }
 
+// requestParams fetches and validates query params of count and offset from request.
 func requestParams(req *http.Request) (count, offset int, err error) {
 	queryVals := req.URL.Query()
 	count, err = nonNegativeQueryParam(queryVals, "count")
@@ -69,8 +72,8 @@ func requestParams(req *http.Request) (count, offset int, err error) {
 	return
 }
 
-// TODO: refacotr : split content batch with pointer to elements.
-func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
+// getProvidersContent provides content per provider based on calculated demand
+func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider][]*ContentItem {
 	var wg sync.WaitGroup
 	var rwm sync.Mutex
 	providerDemands := a.DemandManager.ProvidersCounts(count, offset)
@@ -90,23 +93,30 @@ func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
 		}(provider, demand)
 	}
 	wg.Wait()
+	return providersContent
+}
 
+// GetContent provides content for user based on app config.
+func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
+	providersContent := a.getProvidersContent(count, offset, userIP)
 	content := make([]*ContentItem, 0, count)
 	for j := 0; j < count; j++ {
 		cfg := a.Config[(j+offset)%len(a.Config)]
-		if len(providersContent[cfg.Type]) > 0 {
+		switch {
+		case len(providersContent[cfg.Type]) > 0:
 			content = append(content, providersContent[cfg.Type][0])
 			providersContent[cfg.Type] = providersContent[cfg.Type][1:]
-		} else if len(providersContent[*cfg.Fallback]) > 0 {
+		case len(providersContent[*cfg.Fallback]) > 0:
 			content = append(content, providersContent[*cfg.Fallback][0])
 			providersContent[*cfg.Fallback] = providersContent[*cfg.Fallback][1:]
-		} else {
-			break
+		default:
+			return content
 		}
 	}
 	return content
 }
 
+// userIP returns user IP based on xff header.
 func userIP(req *http.Request) string {
 	return strings.Split(req.Header.Get(xForwardedFor), ",")[0]
 }

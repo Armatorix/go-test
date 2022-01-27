@@ -27,11 +27,17 @@ func runRequest(t *testing.T, srv http.Handler, r *http.Request) (content []*Con
 	return content
 }
 
+func TestBadParam(t *testing.T) {
+	response := httptest.NewRecorder()
+	app.ServeHTTP(response, httptest.NewRequest("GET", "/?offset=-1&count=0", nil))
+
+	require.Equal(t, http.StatusBadRequest, response.Code)
+}
+
 func TestResponseCount(t *testing.T) {
 	content := runRequest(t, app, SimpleContentRequest)
 	require.Len(t, content, 5)
 }
-
 func TestResponseOrder(t *testing.T) {
 	content := runRequest(t, app, SimpleContentRequest)
 	require.Len(t, content, 5)

@@ -6,6 +6,8 @@ type DemandManager struct {
 
 // NewDemandManager provides lookup map for fast calculation of
 // content demand per provider in worst case scenario.
+// worst case scenario:  recommends to get from providers twice of needed content.
+// best case scenario" recommends to get exacly needed amount of content.
 func NewDemandManager(config ContentMix) DemandManager {
 	demands := make([]map[Provider]int, len(config))
 	currentDemand := make(map[Provider]int)
