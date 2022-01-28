@@ -74,13 +74,15 @@ func requestParams(req *http.Request) (count, offset int, err error) {
 
 // getProvidersContent provides content per provider based on calculated demand.
 func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider][]*ContentItem {
-	var wg sync.WaitGroup
 	var m sync.Mutex
 	providerDemands := a.DemandManager.ProvidersCounts(count, offset)
 	providersContent := make(map[Provider][]*ContentItem)
+
+	var wg sync.WaitGroup
 	wg.Add(len(providerDemands))
 	for provider, demand := range providerDemands {
 		go func(provider Provider, demand int) {
+			defer wg.Done()
 			content, err := a.ContentClients[provider].GetContent(userIP, demand)
 			if err != nil {
 				log.Printf("content load failed, provider: %s, err: %v", provider, err)
@@ -89,7 +91,6 @@ func (a *App) getProvidersContent(count, offset int, userIP string) map[Provider
 				providersContent[provider] = content
 				m.Unlock()
 			}
-			wg.Done()
 		}(provider, demand)
 	}
 	wg.Wait()
