@@ -106,7 +106,7 @@ func (a *App) GetContent(count, offset int, userIP string) []*ContentItem {
 		case len(providersContent[cfg.Type]) > 0:
 			content = append(content, providersContent[cfg.Type][0])
 			providersContent[cfg.Type] = providersContent[cfg.Type][1:]
-		case len(providersContent[*cfg.Fallback]) > 0:
+		case cfg.Fallback != nil && len(providersContent[*cfg.Fallback]) > 0:
 			content = append(content, providersContent[*cfg.Fallback][0])
 			providersContent[*cfg.Fallback] = providersContent[*cfg.Fallback][1:]
 		default:
